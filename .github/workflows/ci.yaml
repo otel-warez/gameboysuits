@@ -8,6 +8,7 @@ jobs:
   kind:
     env:
       KUBECONFIG: /tmp/kube-config
+      KUBE_CONFIG: /tmp/kube-config
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
