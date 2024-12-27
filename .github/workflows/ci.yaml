@@ -1,0 +1,72 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+jobs:
+  kind:
+    env:
+      KUBECONFIG: /tmp/kube-config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make our image
+        run: make docker
+      - name: Create kind cluster
+        uses: helm/kind-action@v1.11.0
+        with:
+          cluster_name: kind
+      - name: Deploy certificate signing request
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/certs.yaml
+      - name: Approve our certificate signing request
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: certificate approve operator
+      - name: register our image
+        run: kind load docker-image gameboysuits:dev --name kind
+      - name: Deploy collector
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/collector.yaml
+      - name: Deploy operator collector CRDs
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/crd-opentelemetrycollector.yaml
+      - name: Deploy operator instrumentation CRDs
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/crd-opentelemetryinstrumentation.yaml
+      - name: Deploy operator opampbridge CRDs
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/crd-opampbridges.yaml
+      - name: Deploy instrumentation
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/instrumentation.yaml
+      - name: Deploy operator
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/operator.yaml
+      - name: Deploy java app
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: apply -f test/java.yaml
+      - name: Get collector pod
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          redirect-to: COLLECTOR_POD
+          args:  get pod -l app=collector -o jsonpath="{.items[0].metadata.name}"
+      - name: Get logs
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          redirect-to: LOGS
+          args: logs ${COLLECTOR_POD}
+      - name: Check logs
+        run: |
+          echo ${LOGS}
+          echo ${LOGS} | grep "Starting Servlet engine"
+
