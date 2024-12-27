@@ -20,13 +20,9 @@ jobs:
           cluster_name: kind
           node_image: kindest/node:v1.27.3
       - name: Deploy certificate signing request
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: apply -f test/certs.yaml
+        run: kubectl apply -f test/certs.yaml
       - name: Deploy certificate signing request
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/certs2.yaml"
+        run: kubectl apply -f test/certs2.yaml
       - name: Approve our certificate signing request
         uses: actions-hub/kubectl@v1.32.0
         with:
