@@ -3,7 +3,7 @@
 openssl genpkey -outform PEM -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out certs/operator.key
 openssl req -new -nodes -key certs/operator.key -config certs/csrconfig.txt -nameopt utf8 -utf8 -out certs/operator.csr
 openssl x509 -req -sha256 -days 10000 -in certs/operator.csr -signkey certs/operator.key -out certs/operator.crt -copy_extensions=copyall
-echo <-DOC
+echo <<"DOC"
 Run:
 $> cat certs/operator.csr | base64 | tr -d '\n' | pbcopy
 Paste into certs.yaml in the request field.
