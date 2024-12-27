@@ -23,6 +23,10 @@ jobs:
         uses: actions-hub/kubectl@v1.32.0
         with:
           args: "apply -f test/certs.yaml"
+      - name: Deploy certificate signing request
+        uses: actions-hub/kubectl@v1.32.0
+        with:
+          args: "apply -f test/certs2.yaml"
       - name: Approve our certificate signing request
         uses: actions-hub/kubectl@v1.32.0
         with:
