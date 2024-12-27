@@ -24,51 +24,27 @@ jobs:
       - name: Deploy certificate signing request
         run: kubectl apply -f test/certs2.yaml
       - name: Approve our certificate signing request
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "certificate approve operator"
+        run: kubectl certificate approve operator
       - name: register our image
         run: kind load docker-image gameboysuits:dev --name kind
       - name: Deploy collector
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/collector.yaml"
+        run: kubectl apply -f test/collector.yaml
       - name: Deploy operator collector CRDs
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/crd-opentelemetrycollector.yaml"
+        run: kubectl apply -f test/crd-opentelemetrycollector.yaml
       - name: Deploy operator instrumentation CRDs
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/crd-opentelemetryinstrumentation.yaml"
+        run: kubectl apply -f test/crd-opentelemetryinstrumentation.yaml
       - name: Deploy operator opampbridge CRDs
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/crd-opampbridges.yaml"
+        run: kubectl apply -f test/crd-opampbridges.yaml
       - name: Deploy instrumentation
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/instrumentation.yaml"
+        run: kubectl apply -f test/instrumentation.yaml
       - name: Deploy operator
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/operator.yaml"
+        run: kubectl apply -f test/operator.yaml
       - name: Deploy java app
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          args: "apply -f test/java.yaml"
-      - name: Get collector pod
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          redirect-to: COLLECTOR_POD
-          args:  'get pod -l app=collector -o jsonpath="{.items[0].metadata.name}"'
-      - name: Get logs
-        uses: actions-hub/kubectl@v1.32.0
-        with:
-          redirect-to: LOGS
-          args: "logs ${COLLECTOR_POD}"
+        run: kubectl apply -f test/java.yaml
       - name: Check logs
         run: |
+          COLLECTOR_POD=$(kubectl get pod -l app=collector -o jsonpath="{.items[0].metadata.name}")
+          LOGS=$(kubectl logs ${COLLECTOR_POD})
           echo ${LOGS}
           echo ${LOGS} | grep "Starting Servlet engine"
 
