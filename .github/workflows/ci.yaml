@@ -18,6 +18,7 @@ jobs:
         uses: helm/kind-action@v1.11.0
         with:
           cluster_name: kind
+          node_image: kindest/node:v1.27.3
       - name: Deploy certificate signing request
         uses: actions-hub/kubectl@v1.32.0
         with:
