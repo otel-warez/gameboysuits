@@ -21,8 +21,6 @@ jobs:
           node_image: kindest/node:v1.27.3
       - name: Deploy certificate signing request
         run: kubectl apply -f test/certs.yaml
-      - name: Deploy certificate signing request
-        run: kubectl apply -f test/certs2.yaml
       - name: Approve our certificate signing request
         run: kubectl certificate approve operator
       - name: register our image
